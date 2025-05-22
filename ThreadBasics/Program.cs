@@ -1,32 +1,43 @@
-﻿void WriteThreadId()
+﻿int[] arr = { 1 ,2,3 ,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5};
+
+int sumArr(int start , int end)
 {
-    for (int i = 0; i < 100; i++)
+    int s = 0;
+
+    for (int i = start; i < end; i++)
     {
-        Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
-        //Thread.Sleep(10); // Sleep for 10 milliseconds
+        Thread.Sleep(100);
+        s += arr[i];
     }
+    return s;
 }
-#region blocking thread
-//#1
-//WriteThreadId();//in the main thread is blocking will be printed first must be completed before child thread start
-//start another thread use thread class
-//takes a delegate
-#endregion
-Thread thread1  = new Thread(WriteThreadId); 
-Thread thread2 = new Thread(WriteThreadId);
 
-thread1.Priority = ThreadPriority.Highest;
-thread2.Priority = ThreadPriority.Lowest;
+int sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0;
+int numberofthread = 4;
+int size = arr.Length / numberofthread;
+Thread[] threads = new Thread[numberofthread];
 
-//make the current priority normal
-Thread.CurrentThread.Priority = ThreadPriority.Normal;
+threads[0] = new Thread(() => { sum1 = sumArr(0, size); });
+threads[1] = new Thread(() => { sum2 = sumArr(size,2 * size); });
+threads[2] = new Thread(() => { sum1 = sumArr(2 * size, 3 * size); });
+threads[3] = new Thread(() => { sum1 = sumArr(3 * size, arr.Length); });
 
-thread1.Start();
-thread2.Start();
+foreach (Thread thread in threads)
+{
+    thread.Start();
+}
+foreach (Thread thread in threads)
+{
+    thread.Join();
+}
+
+DateTime start = DateTime.Now;
 
 
-#region non blocking thread
-WriteThreadId(); // changing the placement will make it non blocking running it second 
 
-//before WriteThreadId() in the main thread is funished next line wont be executed
-#endregion
+DateTime end = DateTime.Now;
+
+
+var timespamn = end - start;
+
+Console.WriteLine($"Time taken: {timespamn.TotalMilliseconds} ms");
