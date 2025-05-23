@@ -1,17 +1,8 @@
-﻿/*
- Thread sync 
-Per A and B have joint account 
-having $1000  
-A and B ask bank teller 
-for $800 
-at the same time
-Teller A and B (TA,TB) see $1000 will give $800 to both A and B
-bank loses $600
- */
-//add 1 to counter 
-//Wrong implementation
-//race condition
+﻿
 int counter = 0; // shared resource
+
+//exclusive lock only 1 thread can enter 
+object counterlock = new object();
 
 Thread threadA = new Thread(IncrementCounter);
 Thread threadB = new Thread(IncrementCounter);
@@ -29,7 +20,13 @@ void IncrementCounter()
 {
     for (int i = 0; i < 1000000; i++)
     {
-        //critical section
-        counter++;
+        //exclusive lock only 1 thread can enter 
+        lock (counterlock)
+        {
+            //critical section
+            counter++;
+            //if execption lock has try catch finally mechanism  
+            //lock will be released 
+        }
     }
 }
