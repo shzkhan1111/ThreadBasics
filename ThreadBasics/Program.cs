@@ -1,4 +1,16 @@
-﻿
+﻿//monitor 
+//monitor the critical section 
+//lock simple form of monitor but monitor gives you more control 
+
+/*
+ * monitor enter 
+ * 
+ * critical section 
+ * 
+ * monitor exit 
+ */
+
+
 int counter = 0; // shared resource
 
 //exclusive lock only 1 thread can enter 
@@ -21,12 +33,18 @@ void IncrementCounter()
     for (int i = 0; i < 1000000; i++)
     {
         //exclusive lock only 1 thread can enter 
-        lock (counterlock)
+        //Monitor.Enter(counterlock);
+        Monitor.TryEnter(counterlock , 2000);//2 sec wait time wait for 2 sec
+
+        try
         {
-            //critical section
             counter++;
-            //if execption lock has try catch finally mechanism  
-            //lock will be released 
         }
+        finally
+        {
+            Monitor.Exit(counterlock);
+        }
+        
+
     }
 }
