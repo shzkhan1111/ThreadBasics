@@ -1,53 +1,34 @@
-﻿Console.WriteLine("Simulating Server Request ");
-
-//implementr queue 
-//monitor
-//Request processor
-/*
- in the given case input wont be blocked 
-you enter text 
-its entered into the request queue
-the monitorThread takes it out of the queue 
-and processes it
+﻿/*
+ Thread sync 
+Per A and B have joint account 
+having $1000  
+A and B ask bank teller 
+for $800 
+at the same time
+Teller A and B (TA,TB) see $1000 will give $800 to both A and B
+bank loses $600
  */
-Queue<string> requestQueue = new Queue<string>();
+//add 1 to counter 
+//Wrong implementation
+//race condition
+int counter = 0; // shared resource
 
-Thread monitorThread = new Thread(MonitorQueue);
-monitorThread.Start();
+Thread threadA = new Thread(IncrementCounter);
+Thread threadB = new Thread(IncrementCounter);
+
+threadA.Start();
+threadB.Start();
+
+threadA.Join();
+threadB.Join();
+
+Console.WriteLine($"Final Counter Value is {counter}");
 
 
-
-while (true)
+void IncrementCounter()
 {
-    string input = Console.ReadLine();
-    if (input == "exit")
+    for (int i = 0; i < 1000000; i++)
     {
-        Console.WriteLine("Exiting");
-
-        break;
+        counter++;
     }
-    //SimulateServerRequest(input);
-    requestQueue.Enqueue(input);
-
-}
-
-//worker thead can cause race condition
- void MonitorQueue()
-{
-    while (true)
-    {
-        if (requestQueue.Count > 0)
-        {
-            string input = requestQueue.Dequeue();
-            Thread thread = new Thread(() => SimulateServerRequest(input));
-            thread.Start();
-        }
-        Thread.Sleep(1000);
-    }
-}
-
-static void SimulateServerRequest(string input)
-{
-    Thread.Sleep(1000);
-    Console.WriteLine($"Server Request {input} Completed");
 }
