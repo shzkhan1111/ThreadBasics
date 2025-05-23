@@ -1,24 +1,19 @@
-﻿using System;
-using System.IO;
+﻿Console.WriteLine("Simulating Server Request ");
 
 
-
-
-void doSomethingElse()
+while (true)
 {
-    Thread.Sleep(1000);
-    Console.WriteLine($"Doing something else...");
-
+    string input = Console.ReadLine();
+    if (input == "exit")
+    {
+        break;
+    }
+    SimulateServerRequest(input);
 }
 
 
-Console.WriteLine("Enter an input");
-    string line = Console.ReadLine();
-    //doSomethingElse(line); //I will block the thread
-    Thread thread = new Thread(() => doSomethingElse());
-    
-    thread.Start();
-    Console.WriteLine("you dont need to wait for me to do something");
-    
-
-
+static void SimulateServerRequest(string input)
+{
+    Thread.Sleep(2000);
+    Console.WriteLine("Server Request Completed");
+}
