@@ -34,16 +34,27 @@ void IncrementCounter()
     {
         //exclusive lock only 1 thread can enter 
         //Monitor.Enter(counterlock);
-        Monitor.TryEnter(counterlock , 2000);//2 sec wait time wait for 2 sec
+        if(Monitor.TryEnter(counterlock , 2000))//2 sec wait time wait for 2 sec
+        {
+            try
+            {
+                Thread.Sleep(2500);
+                //Thread.Sleep(25);
 
-        try
-        {
-            counter++;
+                Console.WriteLine($"Counter = {counter++}");
+
+            }
+            finally
+            {
+                Console.WriteLine("Releasing Lock");
+                Monitor.Exit(counterlock);
+            }
         }
-        finally
+        else
         {
-            Monitor.Exit(counterlock);
+            Console.WriteLine("System is busy");
         }
+        
         
 
     }
