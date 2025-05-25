@@ -1,33 +1,77 @@
 ﻿/*
- MUtex can be used within and accross processes 
-Multiple process access the same resource race condition like thread 
-cant use monitor
-
-using mutex 
-
-local mutex 
-using (var m = new Mutex()){m.WaitOne(); try{//crit section}finally(m.releaseMutex);}
-to use accross different processes 
-param false, "Name"
-using as this is a resource within operating system 
-
-used case 
-2 process of same application 
-access a file resource and update its content 
-
-usinng monitor and lock wouldnt work
-implement mutex
-
-using(var m = new Mutex(false //dont give calling initial ownership
-, "Name"//make sure its unique as it will be used accross OS now it can protect shared resource accross processes  
-){
-m.WaitOne()//aquire mutex
-try{
-//open close file crical section 
-
-}
-finally{m.ReleaseMutex();}
-}
-
-uses more resources to create mutex than lock or monitor
+ * reader and writer lock 
+ * 
+ * when a thread aqquires lock only that thread has access to the shared resource in the critical section 
+ * in some cases we require multiple threads to read 
+ * 
+ * 1 or many reader thread aquire lock -> Writer cannot do anything 
+ * 
+ * when writer holder lock anythread cannot access the shared resource anymore 
+ * 
+ * Example SQL 
+ * Select statement     shared lock applied to area of the table (e.g rows, pages)
+ * Update and deleted -> exclusive locks 
+ * 
+ *  
+ * 
  */
+
+public class GlobalConfigurationCache
+{
+    private ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+    private Dictionary<int, string> _cache = new Dictionary<int, string>();
+
+    public void Add(int key , string val)
+    {
+        //these operation are not atomic
+        //broken into different parts when compiler compiles the code 
+        //_cache[key] = val;
+        
+
+        bool isLockAquired = false;//incase of exception when aquiring lock
+        try
+        {
+            _lock.EnterWriteLock();
+            isLockAquired = true;
+            _cache[key] = val;
+        }
+        finally 
+        {
+            if (isLockAquired)
+            {
+                isLockAquired = false;
+                _lock.EnterWriteLock();
+            }
+            
+        }
+
+    }
+
+    public string Get(int key)
+    {
+        //these operation are not atomic
+
+        //return _cache.TryGetValue(key , out var value) ? value : string.Empty;
+        bool isLockAquired = false;//incase of exception when aquiring lock
+
+        try
+        {
+            _lock.EnterWriteLock();
+            isLockAquired = true;
+
+            return _cache.TryGetValue(key, out var value) ? value : string.Empty;
+
+        }
+        finally
+        {
+            if (isLockAquired)
+            {
+                isLockAquired = false;
+                _lock.ExitWriteLock();
+            }
+        }
+    }
+
+}
+
+ 
