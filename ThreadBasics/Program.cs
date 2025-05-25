@@ -1,61 +1,33 @@
-﻿//monitor 
-//monitor the critical section 
-//lock simple form of monitor but monitor gives you more control 
+﻿/*
+ MUtex can be used within and accross processes 
+Multiple process access the same resource race condition like thread 
+cant use monitor
 
-/*
- * monitor enter 
- * 
- * critical section 
- * 
- * monitor exit 
- */
+using mutex 
 
+local mutex 
+using (var m = new Mutex()){m.WaitOne(); try{//crit section}finally(m.releaseMutex);}
+to use accross different processes 
+param false, "Name"
+using as this is a resource within operating system 
 
-int counter = 0; // shared resource
+used case 
+2 process of same application 
+access a file resource and update its content 
 
-//exclusive lock only 1 thread can enter 
-object counterlock = new object();
+usinng monitor and lock wouldnt work
+implement mutex
 
-Thread threadA = new Thread(IncrementCounter);
-Thread threadB = new Thread(IncrementCounter);
+using(var m = new Mutex(false //dont give calling initial ownership
+, "Name"//make sure its unique as it will be used accross OS now it can protect shared resource accross processes  
+){
+m.WaitOne()//aquire mutex
+try{
+//open close file crical section 
 
-threadA.Start();
-threadB.Start();
-
-threadA.Join();
-threadB.Join();
-
-Console.WriteLine($"Final Counter Value is {counter}");
-
-
-void IncrementCounter()
-{
-    for (int i = 0; i < 1000000; i++)
-    {
-        //exclusive lock only 1 thread can enter 
-        //Monitor.Enter(counterlock);
-        if(Monitor.TryEnter(counterlock , 2000))//2 sec wait time wait for 2 sec
-        {
-            try
-            {
-                Thread.Sleep(2500);
-                //Thread.Sleep(25);
-
-                Console.WriteLine($"Counter = {counter++}");
-
-            }
-            finally
-            {
-                Console.WriteLine("Releasing Lock");
-                Monitor.Exit(counterlock);
-            }
-        }
-        else
-        {
-            Console.WriteLine("System is busy");
-        }
-        
-        
-
-    }
 }
+finally{m.ReleaseMutex();}
+}
+
+uses more resources to create mutex than lock or monitor
+ */
