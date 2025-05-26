@@ -1,10 +1,16 @@
-﻿Signaling with manual Reset Event
+﻿Thread Affinity  
+Any Lock aquired by the thread must be released by the same thread  
+Semaphore doesnt have thead affinity concept  
 
-reset is not automatic
-
-Autoreset 
-waiting thread proceed the signal is turned off
+Invoke Executes Delegate on calling thread from child thread else thread sync error  
+due to cross resource  
 
 
-Manual Reset 
-Developer is responsible to call method reset to turn off the signal
+
+what is thread safe function 
+Function Class is thread safe when it can be used by multiple threads without causing data corruption or inconsistency.
+
+for far the queue used
+data can be currupted if multiple threads access the same data without proper synchronization.
+
+dead locks
