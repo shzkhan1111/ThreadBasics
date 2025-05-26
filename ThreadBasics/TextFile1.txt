@@ -1,12 +1,10 @@
-﻿Signaling with AutoReset Event
-signaling between threads
+﻿Signaling with manual Reset Event
 
-Example 
-producer and consumer 
+reset is not automatic
 
-example 
-1 thread signal you can consume 1 thing 
-1 thread enter and the signal is closed 
+Autoreset 
+waiting thread proceed the signal is turned off
 
 
-doesnt protect the resource but used for signaling 
+Manual Reset 
+Developer is responsible to call method reset to turn off the signal
