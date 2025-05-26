@@ -63,15 +63,23 @@ finally{semaphore.release() counter++}
 
 
 
-
  */
 
 
 
 
+using System.Xml.Linq;
+
 Queue<string> requestQueue = new Queue<string>();
+object queueLock = new object();
 
 using SemaphoreSlim semaphore = new SemaphoreSlim(initialCount: 3, maxCount: 3);
+
+//Name Semaphore is cross process 
+//for named semaphore usiong 
+//no semaphore slim and semaphore has a name
+//Semaphore semaphore = new Semaphore(initialCount: 3, maxCount: 3, name: "MyNamedSemaphore");
+
 
 Thread monitorThread = new Thread(MonitorQueue);
 monitorThread.Start();
@@ -88,7 +96,13 @@ while (true)
         break;
     }
     //SimulateServerRequest(input);
-    requestQueue.Enqueue(input);
+    //this becomes critical section
+    //lock it 
+    lock (queueLock)
+    {
+        requestQueue.Enqueue(input);
+
+    }
 
 }
 
@@ -99,7 +113,14 @@ void MonitorQueue()
     {
         if (requestQueue.Count > 0)
         {
-            string input = requestQueue.Dequeue();
+            //this becomes critical section
+            //best pracice is to protect them 
+            string input = "";
+            lock (queueLock)
+            {
+                input = requestQueue.Dequeue();
+
+            }
             semaphore.Wait();//like global counter 
             Thread thread = new Thread(() => SimulateServerRequest(input));
             thread.Start();
@@ -108,7 +129,7 @@ void MonitorQueue()
     }
 }
 
- void SimulateServerRequest(string input)
+void SimulateServerRequest(string input)
 {
     try
     {
@@ -118,7 +139,7 @@ void MonitorQueue()
     }
     finally
     {
-        var previous_count = semaphore.Release(); 
+        var previous_count = semaphore.Release();
         Console.WriteLine($"Thread:: {Thread.CurrentThread.ManagedThreadId} released semaphore {previous_count}");
     }
     //release when process finishes 
