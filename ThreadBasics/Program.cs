@@ -1,77 +1,126 @@
 ﻿/*
- * reader and writer lock 
+ * Semaphore
+ * Most Often usen to control/limit number of thread 
  * 
- * when a thread aqquires lock only that thread has access to the shared resource in the critical section 
- * in some cases we require multiple threads to read 
- * 
- * 1 or many reader thread aquire lock -> Writer cannot do anything 
- * 
- * when writer holder lock anythread cannot access the shared resource anymore 
- * 
- * Example SQL 
- * Select statement     shared lock applied to area of the table (e.g rows, pages)
- * Update and deleted -> exclusive locks 
- * 
- *  
- * 
- */
+ * look at lecture 4 basic solution 
+ *
+ *
+Queue<string> requestQueue = new Queue<string>();
 
-public class GlobalConfigurationCache
+Thread monitorThread = new Thread(MonitorQueue);
+monitorThread.Start();
+
+
+
+while (true)
 {
-    private ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
-    private Dictionary<int, string> _cache = new Dictionary<int, string>();
-
-    public void Add(int key , string val)
+    string input = Console.ReadLine();
+    if (input == "exit")
     {
-        //these operation are not atomic
-        //broken into different parts when compiler compiles the code 
-        //_cache[key] = val;
-        
+        Console.WriteLine("Exiting");
 
-        bool isLockAquired = false;//incase of exception when aquiring lock
-        try
-        {
-            _lock.EnterWriteLock();
-            isLockAquired = true;
-            _cache[key] = val;
-        }
-        finally 
-        {
-            if (isLockAquired)
-            {
-                isLockAquired = false;
-                _lock.EnterWriteLock();
-            }
-            
-        }
-
+        break;
     }
-
-    public string Get(int key)
-    {
-        //these operation are not atomic
-
-        //return _cache.TryGetValue(key , out var value) ? value : string.Empty;
-        bool isLockAquired = false;//incase of exception when aquiring lock
-
-        try
-        {
-            _lock.EnterWriteLock();
-            isLockAquired = true;
-
-            return _cache.TryGetValue(key, out var value) ? value : string.Empty;
-
-        }
-        finally
-        {
-            if (isLockAquired)
-            {
-                isLockAquired = false;
-                _lock.ExitWriteLock();
-            }
-        }
-    }
+    //SimulateServerRequest(input);
+    requestQueue.Enqueue(input);
 
 }
 
- 
+//worker thead can cause race condition
+ void MonitorQueue()
+{
+    while (true)
+    {
+        if (requestQueue.Count > 0)
+        {
+            string input = requestQueue.Dequeue();
+            Thread thread = new Thread(() => SimulateServerRequest(input));
+            thread.Start();
+        }
+        Thread.Sleep(1000);
+    }
+}
+
+static void SimulateServerRequest(string input)
+{
+    Thread.Sleep(1000);
+    Console.WriteLine($"Server Request {input} Completed");
+}
+
+
+using this many thread can be created 
+
+Semaphore can be used system wide
+using semaphoreSlim s = new Semaphore(3,3)
+3 process can exec the code
+semphore.wait()//now we are entering inti the protected section  
+
+Initail thread comes can sees semaphore.wait it will decrease its count 
+it will enter and decrease the counter 
+4th thread sees 0 and it will be released 
+
+finally{semaphore.release() counter++}
+
+
+
+
+ */
+
+
+
+
+Queue<string> requestQueue = new Queue<string>();
+
+using SemaphoreSlim semaphore = new SemaphoreSlim(initialCount: 3, maxCount: 3);
+
+Thread monitorThread = new Thread(MonitorQueue);
+monitorThread.Start();
+
+
+
+while (true)
+{
+    string input = Console.ReadLine();
+    if (input == "exit")
+    {
+        Console.WriteLine("Exiting");
+
+        break;
+    }
+    //SimulateServerRequest(input);
+    requestQueue.Enqueue(input);
+
+}
+
+//worker thead can cause race condition
+void MonitorQueue()
+{
+    while (true)
+    {
+        if (requestQueue.Count > 0)
+        {
+            string input = requestQueue.Dequeue();
+            semaphore.Wait();//like global counter 
+            Thread thread = new Thread(() => SimulateServerRequest(input));
+            thread.Start();
+        }
+        Thread.Sleep(1000);
+    }
+}
+
+ void SimulateServerRequest(string input)
+{
+    try
+    {
+        Thread.Sleep(1000);
+        Console.WriteLine($"Server Request {input} Completed");
+
+    }
+    finally
+    {
+        var previous_count = semaphore.Release(); 
+        Console.WriteLine($"Thread:: {Thread.CurrentThread.ManagedThreadId} released semaphore {previous_count}");
+    }
+    //release when process finishes 
+}
+
