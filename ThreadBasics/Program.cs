@@ -1,4 +1,5 @@
 ﻿using AutoResetEvent autoResetEvent = new AutoResetEvent(false); //false I want the sign to be turned off initially 
+
 //dispose unmanaged resources 
 
 ////consumeer will call Autoreset waitone  I am waiting for something 
@@ -11,8 +12,16 @@
 
 string userInput = null;
 Console.WriteLine("Write a for worker thread to start");
-Thread thread = new Thread(Worker);
-thread.Start(); 
+//Thread thread = new Thread(Worker);
+//thread.Start(); 
+
+//crating 3 worker thread
+for (int i = 0; i < 3; i++) 
+{
+    Thread thread = new Thread(Worker);
+    thread.Name = $"Worker {i + 1}";
+    thread.Start();
+}
 
 while (true)
 {
@@ -30,13 +39,12 @@ void Worker()
 {
     while (true)
     {
-        Console.WriteLine("Worker thread infinite loop waiting for signal");
+        Console.WriteLine($"{Thread.CurrentThread.Name} is waiting");
         autoResetEvent.WaitOne();
         //when I recieve  the signal I will proceed with my task 
 
-        Console.WriteLine("Worker thread proceeds");
-        Console.WriteLine("after 2 second I will wait for another signal ");
-        Thread.Sleep(1000);
+        Console.WriteLine($"{Thread.CurrentThread.Name} proceeds");
+        Thread.Sleep(3000);
         //after 2 second it will wait for another signal 
 
     }

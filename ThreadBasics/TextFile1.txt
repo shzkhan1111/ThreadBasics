@@ -7,3 +7,6 @@ producer and consumer
 example 
 1 thread signal you can consume 1 thing 
 1 thread enter and the signal is closed 
+
+
+doesnt protect the resource but used for signaling 
