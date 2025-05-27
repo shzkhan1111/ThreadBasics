@@ -14,3 +14,5 @@ for far the queue used
 data can be currupted if multiple threads access the same data without proper synchronization.
 
 dead locks
+
+Thread 2 wait for tHead 1 and Thread 1 for thread 2 no one can proceeds -> Locks

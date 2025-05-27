@@ -1,84 +1,47 @@
-﻿//farmer produce batch of food 
-//when batch is ready 
-//animal jump into feeding station 
-//all thread finished -> Q is empty -> signal back to producer 
+﻿object userLock = new object();
+object orderlock = new object();
 
-using System;
-using System.Xml.Serialization;
+Thread thread = new Thread(ManageOrder);
+thread.Start();
 
-Queue<int> queue = new Queue<int>();
+//main thread
+ManageUser();
 
-ManualResetEventSlim consumeEvent = new ManualResetEventSlim(false);
-//how would the consumer know that the producer is done producing?
-//true as initally the consumer is waiting for the producer to produce something
-ManualResetEventSlim produceEvent = new ManualResetEventSlim(true);
-int consumerCount = 0;
-
-object lockObject = new object();
-
-Thread[] consumerThreads = new Thread[5];
-
-for (int i = 0; i < 3; i++)
+thread.Join();
+Console.WriteLine("Program Finished");
+Console.ReadLine();
+void ManageUser()
 {
-    consumerThreads[i] = new Thread(Consume);
-    consumerThreads[i].Name = $"Consumer {i}";
-
-    consumerThreads[i].Start();
-}
 
 
-while (true)
-{
-    produceEvent.Wait(); //block if the producer is not ready to produce
-    produceEvent.Reset(); //reset the event so that it can be used again 
-
-    Console.WriteLine("To Produce, Enter p");
-    var input = Console.ReadLine();
-    if (input?.ToLower()  == "p")
+    lock (userLock)
     {
-        for(int i = 0; i < 10; i++)
+        Console.WriteLine("User Management Aquired user lock");
+        Thread.Sleep(2000);
+
+
+        lock (orderlock)
         {
-            queue.Enqueue(i);
-            Console.WriteLine($"Produced: {i}");
-            //tell consumer i have produced something 
+            //nested lock not printed 
+            Console.WriteLine("User Management Aquired order lock");
+                
         }
-        //consume when the batch is ready 
-        consumeEvent.Set();
     }
-
 }
-
-//define consumer
-
-void Consume()
+void ManageOrder()
 {
-    while (true)
+    lock (orderlock)
     {
-        //wait for Producer set 
-       consumeEvent.Wait();//block if batch is not ready
-                           ////in readl world application make the queue thread safe
-        while (queue.TryDequeue(out int item))
+        Console.WriteLine("User Management Aquired user lock");
+        Thread.Sleep(1000);
+
+
+        lock (userLock)
         {
-            Thread.Sleep(500);
-            Console.WriteLine($"Consumed: {item} from thread: {Thread.CurrentThread.Name}");
+            //nested lock not printed 
+
+            Console.WriteLine("User Management Aquired order lock");
+
         }
-        lock (lockObject)
-        {
-            consumerCount++;
-        }
-        if (consumerCount == 3)
-        {
-            consumeEvent.Reset();//turn off the signals consumer 
-
-            //all 3 thread finished while loop 
-
-
-            //how would the consumer know that the producer is done producing?
-            produceEvent.Set(); //signal back to producer that the queue is empty
-
-            consumerCount = 0;
-            Console.WriteLine("All consumers finished consuming. Producer can produce again.");
-        }
-        
     }
 }
