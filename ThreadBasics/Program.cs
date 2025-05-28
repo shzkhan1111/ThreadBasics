@@ -1,47 +1,31 @@
-﻿object userLock = new object();
-object orderlock = new object();
+﻿using System;
+using System.IO;
+//syncronous programming example 
 
-Thread thread = new Thread(ManageOrder);
-thread.Start();
-
-//main thread
-ManageUser();
-
-thread.Join();
-Console.WriteLine("Program Finished");
-Console.ReadLine();
-void ManageUser()
+class Program
 {
-
-
-    lock (userLock)
+    static void Main()
     {
-        Console.WriteLine("User Management Aquired user lock");
-        Thread.Sleep(2000);
+        Console.WriteLine("Starting synchronous file read...");
 
-
-        lock (orderlock)
+        // This will block the thread until the file is completely read
+        bool res = DBOperation();
+        Console.WriteLine("Do some other task not related to file");
+        if (res)
         {
-            //nested lock not printed 
-            Console.WriteLine("User Management Aquired order lock");
-                
+            Console.WriteLine("Finished synchronous operation.");
         }
+        else
+        {
+            Console.WriteLine("Incomplete asynchronous operation.");
+        }
+
     }
-}
-void ManageOrder()
-{
-    lock (orderlock)
+
+    static bool DBOperation()
     {
-        Console.WriteLine("User Management Aquired user lock");
-        Thread.Sleep(1000);
-
-
-        lock (userLock)
-        {
-            //nested lock not printed 
-
-            Console.WriteLine("User Management Aquired order lock");
-
-        }
+        Console.WriteLine("Operation Started");
+        Task.Delay(2000).Wait();
+        return true;
     }
 }

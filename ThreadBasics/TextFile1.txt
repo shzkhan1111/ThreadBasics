@@ -1,18 +1,9 @@
-﻿Thread Affinity  
-Any Lock aquired by the thread must be released by the same thread  
-Semaphore doesnt have thead affinity concept  
+﻿What is Asynchronous Programming?
+Asynchronous programming is a way to write code that performs long-running operations without blocking the execution thread. This is particularly important for:
 
-Invoke Executes Delegate on calling thread from child thread else thread sync error  
-due to cross resource  
+I/O operations (file, network, database)
 
+UI applications (keeping the UI responsive)
 
+Scalable web services
 
-what is thread safe function 
-Function Class is thread safe when it can be used by multiple threads without causing data corruption or inconsistency.
-
-for far the queue used
-data can be currupted if multiple threads access the same data without proper synchronization.
-
-dead locks
-
-Thread 2 wait for tHead 1 and Thread 1 for thread 2 no one can proceeds -> Locks
