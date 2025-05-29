@@ -1,9 +1,4 @@
-﻿What is Asynchronous Programming?
-Asynchronous programming is a way to write code that performs long-running operations without blocking the execution thread. This is particularly important for:
-
-I/O operations (file, network, database)
-
-UI applications (keeping the UI responsive)
-
-Scalable web services
-
+﻿
+Task Status 
+Ran into Completion, 
+Faulted, Cancled 

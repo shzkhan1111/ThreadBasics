@@ -1,39 +1,25 @@
 ﻿using System;
-using System.IO;
-//asyncronous programming example 
+using System.Threading;
+using System.Threading.Tasks;
 
 class Program
 {
     static async Task Main()
     {
+       
+        //task isCompleted 
+        Task task = SimulateWorkAsync();
 
-        Console.WriteLine("Starting asynchronous database operation...");
+        Console.WriteLine($"IsCompleted (before await): {task.IsCompleted}"); // Should be false
 
-        //start a DB operation 
-        Task<bool> dbOperationTask = DBOperationAsync();
-        Console.WriteLine("Doing other unrelated work...");
-        for (int i = 0; i < 3; i++)
-        {
-            Console.WriteLine($"Working on other task {i + 1}/3");
-            await Task.Delay(2000); // Simulate other work
-        }
+        await task;
 
-        bool operationResult = await dbOperationTask;
-        if (operationResult)
-        {
-            Console.WriteLine("Database operation completed successfully.");
-        }
-        else
-        {
-            Console.WriteLine("Database operation failed.");
-        }
+        Console.WriteLine($"IsCompleted (after await): {task.IsCompleted}"); // Should be true
+
     }
-
-    static async Task<bool> DBOperationAsync()
+    static async Task SimulateWorkAsync()
     {
-        Console.WriteLine("Operation Started");
-        await Task.Delay(2000);//1 paused further execution and returns to the main thread , Await doenst mean run on a background thread 
-        //it means don't block while waiting
-        return true;
+        await Task.Delay(2000); // Simulate some work
+        Console.WriteLine("Work completed.");
     }
 }
