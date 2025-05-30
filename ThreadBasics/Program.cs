@@ -7,31 +7,32 @@
         static void Main(string[] args)
         {
             Console.WriteLine("Before Running Blocking Thread");
-            
-            //var blockingThread = new Thread(() =>
-            //{
-            //    Console.WriteLine("Blocking thread started");
-            //    Thread.Sleep(5000); // Simulate a blocking operation
-            //    Console.WriteLine("Blocking thread finished");
-            //});
-            //blockingThread.Start();
-            //blockingThread.Join();
-            //Console.WriteLine("After Running Blocking Thread");
+            //issue thread when blocked is idle and uuused 
+            var blockingThread = new Thread(() =>
+            {
+                Console.WriteLine("Blocking thread started");
+                Thread.Sleep(5000); // Simulate a blocking operation
+                Console.WriteLine("Blocking thread finished");
+            });
+            blockingThread.Start();
+            blockingThread.Join();
+            Console.WriteLine("After Running Blocking Thread");
 
-            //// Another approach: use polling to check for completion
-            //// Constantly polling the thread state
-            //var pollingThread = new Thread(() =>
-            //{
-            //    Console.WriteLine("Polling thread started");
-            //    Thread.Sleep(5000); // Simulate a blocking operation
-            //    Console.WriteLine("Polling thread finished");
-            //});
-            //pollingThread.Start();
-            //while (pollingThread.IsAlive)
-            //{
-            //    Console.WriteLine("Polling thread is still running...");
-            //    Thread.Sleep(1000); // Poll every second
-            //}
+            // Another approach: use polling to check for completion
+            // Constantly polling the thread state
+            //polling set a flag is also slow and insufficent 
+            var pollingThread = new Thread(() =>
+            {
+                Console.WriteLine("Polling thread started");
+                Thread.Sleep(5000); // Simulate a blocking operation
+                Console.WriteLine("Polling thread finished");
+            });
+            pollingThread.Start();
+            while (pollingThread.IsAlive)
+            {
+                Console.WriteLine("Polling thread is still running...");
+                Thread.Sleep(1000); // Poll every second
+            }
 
             #region Event-Based Approach
 
@@ -44,6 +45,9 @@
                 Console.WriteLine("Event-based thread finished");
                 // Event finished, inform listeners
                 EventFinished();
+
+                //issue
+                //call back is happening on different thread
             });
 
             //call back to exec when event finished 
