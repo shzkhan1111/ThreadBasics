@@ -1,25 +1,57 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-class Program
+﻿namespace ThreadBasics
 {
-    static async Task Main()
+    class Program
     {
-       
-        //task isCompleted 
-        Task task = SimulateWorkAsync();
+        private static event Action EventFinished = () => { };
 
-        Console.WriteLine($"IsCompleted (before await): {task.IsCompleted}"); // Should be false
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Before Running Blocking Thread");
+            
+            //var blockingThread = new Thread(() =>
+            //{
+            //    Console.WriteLine("Blocking thread started");
+            //    Thread.Sleep(5000); // Simulate a blocking operation
+            //    Console.WriteLine("Blocking thread finished");
+            //});
+            //blockingThread.Start();
+            //blockingThread.Join();
+            //Console.WriteLine("After Running Blocking Thread");
 
-        await task;
+            //// Another approach: use polling to check for completion
+            //// Constantly polling the thread state
+            //var pollingThread = new Thread(() =>
+            //{
+            //    Console.WriteLine("Polling thread started");
+            //    Thread.Sleep(5000); // Simulate a blocking operation
+            //    Console.WriteLine("Polling thread finished");
+            //});
+            //pollingThread.Start();
+            //while (pollingThread.IsAlive)
+            //{
+            //    Console.WriteLine("Polling thread is still running...");
+            //    Thread.Sleep(1000); // Poll every second
+            //}
 
-        Console.WriteLine($"IsCompleted (after await): {task.IsCompleted}"); // Should be true
+            #region Event-Based Approach
 
-    }
-    static async Task SimulateWorkAsync()
-    {
-        await Task.Delay(2000); // Simulate some work
-        Console.WriteLine("Work completed.");
+            Console.WriteLine("Before Running Event-Based Thread");
+
+            var event_thread = new Thread(() =>
+            {
+                Console.WriteLine("Event-based thread started");
+                Thread.Sleep(5000); // Simulate a blocking operation
+                Console.WriteLine("Event-based thread finished");
+                // Event finished, inform listeners
+                EventFinished();
+            });
+
+            //call back to exec when event finished 
+            EventFinished += () => Console.WriteLine("Event-based thread completed");
+            event_thread.Start();
+
+            Console.WriteLine("After Event thread fired");
+            #endregion
+        }
     }
 }
